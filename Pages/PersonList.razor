@@ -1,0 +1,62 @@
+﻿@page "/list"
+
+@using OwnedEntityTypes.Data
+@inject IPersonService PersonService
+@inject NavigationManager NavigationManager
+
+<div class="d-flex">
+    <h1>People List</h1>
+    <span class="ml-auto my-auto"><button class="btn btn-success" @onclick="@AddPerson"><i class="oi oi-plus"></i> New</button></span>
+</div>
+
+<p>This component demonstrates owned entity types.</p>
+
+@if (people == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var person in people)
+            {
+                <tr>
+                    <td>@person.FirstName</td>
+                    <td>@person.LastName</td>
+                    <td>@person.MainAddress?.Street, @person.MainAddress?.City</td>
+                    <td>@person.Phone?.Primary (@person.Phone?.Secondary)</td>
+                    <td><button class="btn btn-sm btn-success" @onclick="(() => EditContext(person))">Edit</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Person> people;
+
+    protected override async Task OnInitializedAsync()
+    {
+        people = await PersonService.Get();
+    }
+
+    void EditContext(Person person)
+    {
+        NavigationManager.NavigateTo($"/edit/{person.Id}");
+    }
+
+    void AddPerson()
+    {
+        NavigationManager.NavigateTo($"/edit/0");
+    }
+}

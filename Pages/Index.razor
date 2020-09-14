@@ -1,0 +1,145 @@
+﻿@page "/"
+@inject IJSRuntime _jsRuntime
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Owned Entity Types</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="card col-md-10 border-left-primary shadow mb-5 p-0">
+            <h5 class="card-header">What's about</h5>
+            <div class="card-body table-responsive">
+                <p class="card-text">
+                    This project is a demonstration of <b>Owned Entity Types</b>.
+                    <br />
+                </p>
+                <p class="card-text">
+                    I developed this project to help those who do not know these concepts, or who want to deepen them.
+                    <br />
+                    Write, comment and propose corrections and improvements.
+                </p>
+
+                <p class="card-text">
+                    With Owned Entity Types you can create <i>sub entities</i> for your EF Core entities.<br />
+                    Image you have a <b>Person</b> entity and you want to add an <b>Address</b> entity.<br />
+                    The resulting <b>Person</b> entity should be:
+                    <br />
+                    <pre><code class="language-csharp">
+public class Person {
+    public string Id {get; set;}
+    public string FirstName {get; set;}
+    public string LastName {get; set;}
+    /* Address fields */
+    public string Street {get; set;}
+    public string City {get; set;}
+    public string Country {get; set;}
+}
+                </code></pre>
+                </p>
+
+                <p class="card-text">
+                    Now image you want a reusable class for all kind of <i>Address</i>.
+                    <br />
+                    Tipically the solution is to create a joined table with a foreign key.
+                    <br />
+                    This is the reason why the <b>Owned Entity Types</b> have been invented: to simplify the development of related entities.
+                </p>
+
+                <p class="card-text">
+                    In action we have:
+                    <pre><code class="language-csharp">
+[Owned]
+public class Address {
+    public string Street {get; set;}
+    public string City {get; set;}
+    public string Country {get; set;}
+}
+
+public class Person {
+    public string Id {get; set;}
+    public string FirstName {get; set;}
+    public string LastName {get; set;}
+    public Address StreetAddress {get; set;}
+}
+</code></pre>
+                </p>
+
+                <p class="card-text">
+                    Now we have a navigation like <code class="language-csharp">Person.StreetAddress.City</code>.
+                    <br />
+                    On the database the EF Core works its magic:
+                    <br />
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i class="oi oi-key"></i> Id</td>
+                                <td>nvarchar(MAX)</td>
+                            </tr>
+                            <tr>
+                                <td>FirstName</td>
+                                <td>nvarchar(MAX)</td>
+                            </tr>
+                            <tr>
+                                <td>LastName</td>
+                                <td>nvarchar(MAX)</td>
+                            </tr>
+                            <tr>
+                                <td>StreetAddress_Street</td>
+                                <td>nvarchar(MAX)</td>
+                            </tr>
+                            <tr>
+                                <td>StreetAddress_City</td>
+                                <td>nvarchar(MAX)</td>
+                            </tr>
+                            <tr>
+                                <td>StreetAddress_Country</td>
+                                <td>nvarchar(MAX)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </p>
+                <p class="card-text mt-3">
+                    <h4>Limitation</h4>
+                    <ul>
+                        <li>Before EF Core 3.1 the Owned Entity Types are more or less unusable.</li>
+                        <li>If you need more control use <i>classic</i> joined tables.</li>
+                        <li>To use all the capabilities you need to use Fluent configuration.</li>
+                        <li>
+                            Direct update does not set the parent entity in modified state.
+                            Use <a href="https://martinfowler.com/eaaCatalog/unitOfWork.html" target="_blank">Unit of Work</a> approaches.
+                        </li>
+                    </ul>
+                </p>
+                <p class="card-text mt-4">
+                    This example is available under the <i class="oi oi-heart"></i> MIT License.
+                </p>
+                <p class="card-text mt-3">
+                    Reference:
+                    <br />
+                    <a href="https://docs.microsoft.com/en-us/ef/core/modeling/owned-entities"
+                       target="_blank">https://docs.microsoft.com/en-us/ef/core/modeling/owned-entities</a>
+                </p>
+                <p class="card-text text-right">
+                    <a href="https://github.com/nbiada" target="_blank" class="mr-2"><i class="im im-github"></i></a>
+                    <a href="https://www.linkedin.com/in/nicolabiada/" target="_blank" class="mr-2"><i class="im im-linkedin"></i></a>
+                    <a href="https://www.facebook.com/nicola.biada" target="_blank" class="mr-2"><i class="im im-facebook"></i></a>
+                    <cite title="Nicola Biada">-- Nicola Biada</cite>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await _jsRuntime.InvokeVoidAsync("Prism.highlightAll");
+    }
+}

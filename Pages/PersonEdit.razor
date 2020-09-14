@@ -1,0 +1,126 @@
+﻿@page "/edit/{id:int}"
+@inject IPersonService PersonService
+@inject NavigationManager NavigationManager
+@using System.ComponentModel.DataAnnotations
+
+<h3>Person Edit</h3>
+@if (person == null)
+{
+    <div>loading...</div>
+}
+else
+{
+    <EditForm Model="viewModel" OnValidSubmit="@SaveData">
+        <DataAnnotationsValidator />
+        <div class="form-group">
+            <label class="col-form-label">
+                First name
+            </label>
+            <InputText class="form-control" id="FirstName" @bind-Value="viewModel.FirstName" />
+            <ValidationMessage For="@(() => viewModel.FirstName)" />
+        </div>
+        <div class="form-group">
+            <label class="col-form-label">
+                Last name *
+            </label>
+            <InputText class="form-control" id="LastName" @bind-Value="viewModel.LastName" />
+            <ValidationMessage For="@(() => viewModel.LastName)" />
+        </div>
+        <fieldset>
+            <legend>Address</legend>
+            <div class="form-group">
+                <label class="col-form-label">
+                    Street
+                </label>
+                <InputText class="form-control" id="Address_Street" @bind-Value="viewModel.Address.Street" />
+                <ValidationMessage For="@(() => viewModel.Address.Street)" />
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">
+                    City
+                </label>
+                <InputText class="form-control" id="Address_City" @bind-Value="viewModel.Address.City" />
+                <ValidationMessage For="@(() => viewModel.Address.City)" />
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">
+                    Country
+                </label>
+                <InputText class="form-control" id="Address_Country" @bind-Value="viewModel.Address.Country" />
+                <ValidationMessage For="@(() => viewModel.Address.Country)" />
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Phone</legend>
+            <div class="form-group">
+                <label class="col-form-label">
+                    Primary
+                </label>
+                <InputText class="form-control" id="Phone" @bind-Value="viewModel.Phone" />
+                <ValidationMessage For="@(() => viewModel.Phone)" />
+            </div>
+        </fieldset>
+        <div class="text-left mt-5">
+            <button class="btn btn-success" type="submit">Save</button>
+            <button class="btn btn-secondary" type="button" @onclick="@Cancel">Cancel</button>
+        </div>
+    </EditForm>
+}
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+
+    class ViewModel
+    {
+        public string FirstName { get; set; }
+        [Required]
+        public string LastName { get; set; }
+        public StreetAddress Address { get; set; }
+        public string Phone { get; set; }
+    }
+
+    Person person;
+    ViewModel viewModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        viewModel = new ViewModel();
+
+        if (id == 0)
+        {
+            person = new Person();
+        }
+        else
+        {
+            person = await PersonService.Get(id);
+        }
+        if (person != null)
+        {
+            viewModel.FirstName = person.FirstName;
+            viewModel.LastName = person.LastName;
+            viewModel.Phone = person.Phone?.Primary;
+            viewModel.Address = person.MainAddress ??= new StreetAddress();
+        }
+    }
+
+    protected async Task SaveData()
+    {
+        person.FirstName = viewModel.FirstName;
+        person.LastName = viewModel.LastName;
+        if (person.Phone == null)
+        {
+            person.Phone = new Phone();
+        }
+        person.Phone.Primary = viewModel.Phone;
+        person.MainAddress = viewModel.Address;
+
+        await PersonService.Update(person);
+        NavigationManager.NavigateTo("/list");
+    }
+
+    protected void Cancel()
+    {
+        NavigationManager.NavigateTo("/list");
+    }
+}
