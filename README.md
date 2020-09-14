@@ -1,5 +1,6 @@
 # OwnedEntityTypes
-An example how to use Owned Entity Types in EntityFramework Core
+An example how to use Owned Entity Types in EntityFramework Core,\
+see it in action https://github.com/nbiada/OwnedEntityTypes !
 
 With **Owned Entity Types** you can create _sub entities_ for your EF Core entities.\
 Imagine you have a `Person` entity and you want to add an `Address` entity.
